@@ -35,6 +35,7 @@ pub struct BindgenOptions {
     pub csharp_type_rename: fn(type_name: String) -> String,
     pub csharp_file_header: String,
     pub csharp_file_footer: String,
+    pub csharp_enable_reloading: bool,
     pub always_included_types: Vec<String>,
 }
 
@@ -63,6 +64,7 @@ impl Default for Builder {
                 csharp_type_rename: identity,
                 csharp_file_header: "".to_string(),
                 csharp_file_footer: "".to_string(),
+                csharp_enable_reloading: false,
                 always_included_types: vec![],
             },
         }
@@ -235,6 +237,13 @@ impl Builder {
     /// configure the additional footer for the generated C# code.
     pub fn csharp_file_footer<T: Into<String>>(mut self, csharp_file_footer: T) -> Builder {
         self.options.csharp_file_footer = csharp_file_footer.into();
+        self
+    }
+    
+    /// sets whether to emit reload-friendly C#.
+    /// definitely not compatible with most csbindgen features (yet).
+    pub fn csharp_enable_reloading(mut self, enable_reloading: bool) -> Builder {
+        self.options.csharp_enable_reloading = enable_reloading;
         self
     }
 
