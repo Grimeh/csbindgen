@@ -324,6 +324,8 @@ pub fn collect_struct(ast: &syn::File, options: &BindgenOptions, result: &mut Ve
             } else {
                 // non #[repr(?)] struct, treat as Unit struct
                 let struct_name = t.ident.to_string();
+                println!("cargo::warning=Found struct without #[repr(_)], treating as unit struct [{}]", struct_name);
+
                 let fields: Vec<FieldMember> = Vec::new();
                 result.push(RustStruct {
                     struct_name,
