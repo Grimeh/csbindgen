@@ -186,7 +186,7 @@ pub fn emit_csharp(
 
         if options.csharp_enable_reloading {
             method_list_string.push_str_ln(
-                format!("        [PluginFunctionAttr(\"{entry_point}\")]").as_str()
+                format!("        [PluginFunction(\"{}\", \"{entry_point}\")]", options.csharp_dll_name).as_str()
             );
             method_list_string.push_str_ln(
                 format!("        {accessibility} static {method_prefix}{method_name}Delegate {method_prefix}{method_name} = null;").as_str()
@@ -388,15 +388,8 @@ pub fn emit_csharp(
     let class_string = if method_list_string.is_empty() && const_string.is_empty() {
         String::new()
     } else {
-        let wrap_attr = if options.csharp_enable_reloading {
-            format!("[PluginAttr(\"{}\")]", options.csharp_dll_name)
-        } else {
-            "".to_string()
-        };
-        
         format!(
-            "{wrap_attr}
-    {accessibility} static unsafe partial class {class_name}
+            "{accessibility} static unsafe partial class {class_name}
     {{
 {dll_name}
 
