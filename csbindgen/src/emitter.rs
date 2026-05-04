@@ -184,15 +184,31 @@ pub fn emit_csharp(
             method_list_string.push_str_ln(&x);
         }
 
-        method_list_string.push_str_ln(
-            format!("        [DllImport(__DllName, EntryPoint = \"{entry_point}\", CallingConvention = CallingConvention.{call_conv}, ExactSpelling = true)]").as_str(),
-        );
-        if return_type == "bool" {
-            method_list_string.push_str_ln("        [return: MarshalAs(UnmanagedType.U1)]");
+        if options.csharp_enable_reloading {
+            method_list_string.push_str_ln(
+                format!("        [PluginFunctionAttr(\"{entry_point}\")]").as_str()
+            );
+            method_list_string.push_str_ln(
+                format!("        {accessibility} static {method_prefix}{method_name}Delegate {method_prefix}{method_name} = null;").as_str()
+            );
+            if return_type == "bool" {
+                method_list_string.push_str_ln("        [return: MarshalAs(UnmanagedType.U1)]");
+            }
+            method_list_string.push_str_ln(
+                format!("        {accessibility} delegate {return_type} {method_prefix}{method_name}Delegate({parameters});").as_str()
+            );
+        } else {
+            method_list_string.push_str_ln(
+                format!("        [DllImport(__DllName, EntryPoint = \"{entry_point}\", CallingConvention = CallingConvention.{call_conv}, ExactSpelling = true)]").as_str(),
+            );
+            if return_type == "bool" {
+                method_list_string.push_str_ln("        [return: MarshalAs(UnmanagedType.U1)]");
+            }
+            method_list_string.push_str_ln(
+                format!("        {accessibility} static extern {return_type} {method_prefix}{method_name}({parameters});").as_str(),
+            );
         }
-        method_list_string.push_str_ln(
-            format!("        {accessibility} static extern {return_type} {method_prefix}{method_name}({parameters});").as_str(),
-        );
+
         method_list_string.push('\n');
     }
 
@@ -372,8 +388,15 @@ pub fn emit_csharp(
     let class_string = if method_list_string.is_empty() && const_string.is_empty() {
         String::new()
     } else {
+        let wrap_attr = if options.csharp_enable_reloading {
+            format!("[PluginAttr(\"{}\")]", options.csharp_dll_name)
+        } else {
+            "".to_string()
+        };
+        
         format!(
-            "{accessibility} static unsafe partial class {class_name}
+            "{wrap_attr}
+    {accessibility} static unsafe partial class {class_name}
     {{
 {dll_name}
 
