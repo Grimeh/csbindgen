@@ -14,8 +14,8 @@ pub struct Builder {
 }
 
 pub struct BindgenOptions {
-    pub input_bindgen_files: Vec<PathBuf>,
-    pub input_extern_files: Vec<PathBuf>,
+    pub input_bindgen_files: Vec<String>,
+    pub input_extern_files: Vec<String>,
     pub method_filter: fn(method_name: String) -> bool,
     pub rust_method_type_path: String,
     pub rust_method_prefix: String,
@@ -75,16 +75,16 @@ impl Builder {
     }
 
     /// Add an input .rs file(such as generated from bindgen) to generate binding.
-    pub fn input_bindgen_file<T: AsRef<Path>>(mut self, input_bindgen_file: T) -> Builder {
-        self.options.input_bindgen_files.push(input_bindgen_file.as_ref().to_path_buf());
+    pub fn input_bindgen_file<T: Into<String>>(mut self, input_bindgen_file: T) -> Builder {
+        self.options.input_bindgen_files.push(input_bindgen_file.into());
         self
     }
 
     /// Add an input .rs file for collect extern methods to C# binding.
-    pub fn input_extern_file<T: AsRef<Path>>(mut self, input_extern_file: T) -> Builder {
+    pub fn input_extern_file<T: Into<String>>(mut self, input_extern_file: T) -> Builder {
         self.options
             .input_extern_files
-            .push(input_extern_file.as_ref().to_path_buf());
+            .push(input_extern_file.into());
         self
     }
 
