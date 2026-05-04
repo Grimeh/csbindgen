@@ -39,20 +39,23 @@ pub(crate) fn generate(
     let mut enums: Vec<RustEnum> = vec![];
     let mut consts: Vec<RustConst> = vec![];
 
-    for path in paths {
-        let file_content = std::fs::read_to_string(path)
-            .unwrap_or_else(|_| panic!("input file not found, path: {}", std::path::absolute(path).unwrap().display()));
-        let file_ast = syn::parse_file(file_content.as_str())?;
+    for pattern in paths {
+        for path in glob::glob(pattern).expect("failed to read glob pattern") {
+            let path = path.expect("failed to read");
+            let file_content = std::fs::read_to_string(&path)
+                .unwrap_or_else(|_| panic!("input file not found, path: {}", std::path::absolute(path).unwrap().display()));
+            let file_ast = syn::parse_file(file_content.as_str())?;
 
-        match generate_kind {
-            GenerateKind::InputBindgen => collect_foreign_method(&file_ast, options, &mut methods),
-            GenerateKind::InputExtern => collect_extern_method(&file_ast, options, &mut methods),
-        };
-        collect_type_alias(&file_ast, &mut aliases);
-        collect_struct(&file_ast, options, &mut structs);
-        collect_enum(&file_ast, &mut enums);
+            match generate_kind {
+                GenerateKind::InputBindgen => collect_foreign_method(&file_ast, options, &mut methods),
+                GenerateKind::InputExtern => collect_extern_method(&file_ast, options, &mut methods),
+            };
+            collect_type_alias(&file_ast, &mut aliases);
+            collect_struct(&file_ast, options, &mut structs);
+            collect_enum(&file_ast, &mut enums);
 
-        collect_const(&file_ast, &mut consts, options.csharp_generate_const_filter);
+            collect_const(&file_ast, &mut consts, options.csharp_generate_const_filter);
+        }
     }
 
     // collect using_types

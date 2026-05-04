@@ -15,3 +15,4 @@ repository = "https://github.com/Cysharp/csbindgen/"
 syn = { version = "2.0.68", features = ["full", "parsing"] }
 regex = "1.10.5"
 convert_case = "0.11.0"
+glob = "0.3.3"
