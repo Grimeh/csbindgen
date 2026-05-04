@@ -136,7 +136,7 @@ fn parse_method(item: FnItem, options: &BindgenOptions) -> Option<ExternMethod> 
 
             let rust_type = parse_type(&t.ty);
             if rust_type.type_name.is_empty() {
-                println!("csbindgen can't handle this parameter type so ignore generate, method_name: {} parameter_name: {}", method_name, parameter_name);
+                println!("cargo::warning=csbindgen: can't handle this parameter type so ignore generate, method_name: {} parameter_name: {}", method_name, parameter_name);
                 return None;
             }
 
@@ -152,7 +152,7 @@ fn parse_method(item: FnItem, options: &BindgenOptions) -> Option<ExternMethod> 
         let rust_type = parse_type(b);
         if rust_type.type_name.is_empty() {
             println!(
-                "csbindgen can't handle this return type so ignore generate, method_name: {}",
+                "cargo::warning=csbindgen: can't handle this return type so ignore generate, method_name: {}",
                 method_name
             );
             return None;
@@ -173,7 +173,7 @@ fn parse_method(item: FnItem, options: &BindgenOptions) -> Option<ExternMethod> 
             export_naming = x;
         } else {
             println!(
-                "csbindgen can't handle this function because there is neither #[no_mangle] nor #[export_name] so ignore generate, method_name: {}",
+                "cargo::warning=csbindgen: can't handle this function because there is neither #[no_mangle] nor #[export_name] so ignore generate, method_name: {}",
                 method_name
             );
             return None;
@@ -239,7 +239,7 @@ fn parse_method_attribute_arguments(attr: &syn::Attribute) -> Option<ExportSymbo
         match parse_result {
             Ok(Some(value)) => return Some(value),
             Ok(None) => {}
-            Err(e) => println!("csbindgen can't parse attribute args: {}", e),
+            Err(e) => println!("cargo::warning=csbindgen: can't parse attribute args: {}", e),
         }
     }
     None
@@ -324,7 +324,7 @@ pub fn collect_struct(ast: &syn::File, options: &BindgenOptions, result: &mut Ve
             } else {
                 // non #[repr(?)] struct, treat as Unit struct
                 let struct_name = t.ident.to_string();
-                println!("cargo::warning=Found struct without #[repr(_)], treating as unit struct [{}]", struct_name);
+                println!("cargo::warning=csbindgen: found struct without #[repr(_)], treating as unit struct: {}", struct_name);
 
                 let fields: Vec<FieldMember> = Vec::new();
                 result.push(RustStruct {
@@ -450,7 +450,7 @@ pub fn collect_enum(ast: &syn::File, result: &mut Vec<RustEnum>) {
                 .iter()
                 .any(|x| !matches!(x.fields, syn::Fields::Unit))
             {
-                println!("csbindgen can't handle Enum containing any variable with field, so ignore generate, enum_name: {enum_name}");
+                println!("cargo::warning=csbindgen: can't handle Enum containing any variable with field, so ignore generate, enum_name: {enum_name}");
                 continue;
             }
 
