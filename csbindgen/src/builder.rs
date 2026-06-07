@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use std::{
     error::Error,
     fs::{File, OpenOptions},

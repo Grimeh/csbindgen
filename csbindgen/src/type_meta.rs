@@ -1,5 +1,4 @@
 use crate::{alias_map::AliasMap, builder::BindgenOptions};
-use std::collections::HashMap;
 
 pub fn escape_csharp_name(str: &str) -> String {
     match str {
